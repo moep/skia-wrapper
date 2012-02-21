@@ -1,0 +1,68 @@
+RELEASE=Debug
+SRC = src
+SKIA_SRC = skia_src
+TARGET = test
+JAVA_HOME ?= /usr/lib/jvm/java-6-sun-1.6.0.26/include
+
+DEFS = '-DSK_SCALAR_IS_FLOAT' \
+       '-DSK_CAN_USE_FLOAT' \
+       '-DSK_SAMPLES_FOR_X' \
+       '-DSK_BUILD_FOR_UNIX' \
+       '-DSK_USE_POSIX_THREADS' 
+
+CFLAGS = -Wall \
+         -Wextra \
+         -Wno-unused \
+         -Wno-unused-parameter \
+         -Wno-c++11-extensions \
+         -g
+
+INCS = -I/usr/include/freetype2 \
+       -I$(SKIA_SRC)/gyp/config \
+       -I$(SKIA_SRC)/include/config \
+       -I$(SKIA_SRC)/include/core \
+       -I$(SKIA_SRC)/gyp/ext \
+       -I$(SKIA_SRC)/include/images \
+       -I$(SKIA_SRC)/include/ports \
+       -I$(SKIA_SRC)/include/utils
+
+OBJS = $(SKIA_SRC)/out/$(RELEASE)/obj.target/skhello/src/effects/SkEffects_none.o \
+       $(SKIA_SRC)/out/$(RELEASE)/obj.target/skhello/src/images/SkImageDecoder_libpng.o
+
+LIBS = -lfreetype \
+       -lpthread \
+       -lpng \
+       -lGL \
+       -lGLU \
+       -lcore \
+       -limages \
+       -lports \
+       -lutils \
+       -lopts \
+       -lopts_ssse3
+
+LD_INPUTS = $(OBJS) \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libcore.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libimages.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libports.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libutils.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libopts.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libopts_ssse3.a
+
+
+helloWorld:
+	@echo " (CC) test.cpp"
+	@g++ $(CFLAGS) $(DEFS) -o $(TARGET) $(INCS) -L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) $(SRC)/helloWorld.cpp
+
+testWrapper:
+	@echo " (CC) testWrapper.cpp"
+
+all: helloWorld
+
+clean:
+	@echo "Cleaning up"
+	@rm $(TARGET)	 
+	@rm *.png
+
+removeSources:
+	@rm -rf $(SKIA_SRC)
