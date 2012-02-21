@@ -57,7 +57,10 @@ helloWorld:
 # This target creates a hello world shared library 
 testWrapper:
 	@echo " (CC) org_mapsforge_playground_JNITestMain"
-	@gcc -I/usr/lib/jvm/java-6-sun-1.6.0.26/include/ -I/usr/lib/jvm/java-6-sun-1.6.0.26/include/linux/ -shared src/org_mapsforge_playground_JNITestMain.c -o libtest.so
+	@g++ $(CFLAGS) $(DEFS) -o libtest.so  \
+	-I/usr/lib/jvm/java-6-sun-1.6.0.26/include/ -I/usr/lib/jvm/java-6-sun-1.6.0.26/include/linux/ $(INCS) \
+	-L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) \
+	-shared src/org_mapsforge_playground_JNITestMain.cpp
 
 all: testWrapper helloWorld
 

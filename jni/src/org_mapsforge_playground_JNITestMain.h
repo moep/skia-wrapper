@@ -13,7 +13,15 @@ extern "C" {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_org_mapsforge_playground_JNITestMain_printHello
-  (JNIEnv *, jobject);
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_mapsforge_playground_JNITestMain
+ * Method:    createTestPNG
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_mapsforge_playground_JNITestMain_createTestPNG
+  (JNIEnv *, jclass, jstring);
 
 #ifdef __cplusplus
 }
