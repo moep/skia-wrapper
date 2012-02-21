@@ -49,19 +49,22 @@ LD_INPUTS = $(OBJS) \
             $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libopts.a \
             $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libopts_ssse3.a
 
-
+# This target compiles the Skia hello world application 
 helloWorld:
 	@echo " (CC) test.cpp"
 	@g++ $(CFLAGS) $(DEFS) -o $(TARGET) $(INCS) -L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) $(SRC)/helloWorld.cpp
 
+# This target creates a hello world shared library 
 testWrapper:
-	@echo " (CC) testWrapper.cpp"
+	@echo " (CC) org_mapsforge_playground_JNITestMain"
+	@gcc -I/usr/lib/jvm/java-6-sun-1.6.0.26/include/ -I/usr/lib/jvm/java-6-sun-1.6.0.26/include/linux/ -shared src/org_mapsforge_playground_JNITestMain.c -o libtest.so
 
-all: helloWorld
+all: testWrapper helloWorld
 
 clean:
 	@echo "Cleaning up"
-	@rm $(TARGET)	 
+	@rm $(TARGET)	
+	@rm libtest.so 
 	@rm *.png
 
 removeSources:
