@@ -8,24 +8,32 @@
 
 /////////////////////////////////////////////////////////////
 
-void
+static void
 printHello()
 {
   printf("[Native] Hello\r\n");
 }
 
-int
-getVal(JNIEnv* env, jclass* clazz, jobject* ft)
+static int
+getVal(JNIEnv* env, jobject obj)
 {
   printf("[Native] getVal()\r\n");
-  FooType *ftt = (FooType*)ft;
-  ftt->getVal();
-  return 11;
+  jclass clazz = env->GetObjectClass(obj);
+
+  jfieldID fID = env->GetFieldID(clazz, "nativeObj", "I");
+  if(fID == 0) {
+        printf("[Native] ERROR: Could not get field\r\n");
+    }
+
+  FooType* ft = (FooType*) env->GetIntField(obj, fID);
+  printf("[Native] FooType address: 0x%x \r\n", ft);
+  printf("[Native] FooType value: %d \r\n", ft->getVal());
+  return ft->getVal();
 }
 
-FooType* createFooType(JNIEnv *env, jclass clazz, int val) {
-  printf("[Native] createFooType(%d)\r\n", val);
+static FooType* createFooType(JNIEnv *env, jclass clazz, int val) {
   FooType *ft = new FooType(val);
+  printf("[Native] createFooType(%d) -> 0x%x \r\n", val, ft);
   return ft;
 }
 

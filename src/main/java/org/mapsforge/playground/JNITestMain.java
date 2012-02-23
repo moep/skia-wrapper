@@ -27,11 +27,7 @@ public class JNITestMain {
 		FooType ft = new FooType(42);
 		FooType ft2 = new FooType(88);
 		System.out.println("Val1: " + ft.getVal());
-		System.out.println("Val1: " + ft.getVal());
 		System.out.println("Val2: " + ft2.getVal());
-		System.out.println("Val1: " + ft.getVal());
-		System.out.println("Val2: " + ft2.getVal());
-		System.out.println("Val1: " + ft.getVal());
 		// Perform tests
 	}
 
