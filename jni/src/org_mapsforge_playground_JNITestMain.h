@@ -17,11 +17,11 @@ JNIEXPORT void JNICALL Java_org_mapsforge_playground_JNITestMain_printHello
 
 /*
  * Class:     org_mapsforge_playground_JNITestMain
- * Method:    createTestPNG
- * Signature: (Ljava/lang/String;)V
+ * Method:    createObject
+ * Signature: (I)Lorg/mapsforge/playground/FooType;
  */
-JNIEXPORT void JNICALL Java_org_mapsforge_playground_JNITestMain_createTestPNG
-  (JNIEnv *, jclass, jstring);
+JNIEXPORT jobject JNICALL Java_org_mapsforge_playground_JNITestMain_createObject
+  (JNIEnv *, jclass, jint);
 
 #ifdef __cplusplus
 }
