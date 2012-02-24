@@ -1,8 +1,8 @@
 package org.mapsforge.playground;
 
+import org.mapsforge.skia.Bitmap;
+
 public class JNITestMain {
-	private static native void native_printHello();
-	private static native int native_createFooType();
 
 	private static void printLibraryPaths(String paths) {
 		for (String path : paths.split(":")) {
@@ -23,12 +23,11 @@ public class JNITestMain {
 
 		// Load libraries
 		System.load(customLibraryPath + "libtest.so");
-		native_printHello();
-		FooType ft = new FooType(42);
-		FooType ft2 = new FooType(88);
-		System.out.println("Val1: " + ft.getVal());
-		System.out.println("Val2: " + ft2.getVal());
+		
 		// Perform tests
+		Bitmap bmp = new Bitmap();
+		bmp.saveAsPNG("moep.png");
+		bmp.delete();
 	}
 
 }

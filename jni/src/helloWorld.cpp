@@ -9,8 +9,6 @@ void
 createTestPNG(char helloText[])
 {
 
-  SkAutoGraphics ag;
-
   //Output filename
   SkString path("skhello.png");
 

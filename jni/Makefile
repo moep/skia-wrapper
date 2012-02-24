@@ -55,11 +55,6 @@ LD_INPUTS = $(OBJS) \
             $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libopts.a \
             $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libopts_ssse3.a
 
-# This target compiles the Skia hello world application 
-helloWorld:
-	@echo " (CC) test.cpp"
-	@(CXX) $(CFLAGS) $(DEFS) -o $(TARGET) $(INCS) -L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) $(SRC)/helloWorld.cpp
-
 # This target creates a hello world shared library 
 testWrapper:
 	@echo " (CC) org_mapsforge_playground_JNITestMain"
@@ -67,13 +62,21 @@ testWrapper:
 	$(INCS_JNI) $(INCS) \
 	-L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) \
 	-shared src/org_mapsforge_playground_JNITestMain.cpp
+	
+test: 
+	@$(CXX) $(CFLAGS) $(DEFS) -o test  \
+	$(INCS_JNI) $(INCS) \
+	-L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) \
+	src/helloWorld.cpp
 
 shared:
-	@$(CXX) $(CFLAGS) -c src/FooType.cpp -o footype.o 
-#	@$(CXX) -fPIC -o libtest.so $(INCS_JNI) -shared footype.o src/org_mapsforge_playground_JNITestMain.cpp
-	@$(CXX) -fPIC -o libtest.so $(INCS_JNI) -shared footype.o src/AllInOneWrapper.cpp
+#	@$(CXX) $(CFLAGS) -c src/FooType.cpp -o footype.o 
+	@$(CXX) -fPIC -o libtest.so $(CFLAGS) $(DEFS) \
+	$(INCS_JNI) $(INCS) \
+	-L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) \
+	-shared src/JNIHelper.cpp src/MinimalisticGlue.cpp 
 
-all: testWrapper helloWorld
+all: shared
 
 clean:
 	@echo "Cleaning up"
