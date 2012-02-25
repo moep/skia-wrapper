@@ -67,16 +67,31 @@ test:
 	@$(CXX) $(CFLAGS) $(DEFS) -o test  \
 	$(INCS_JNI) $(INCS) \
 	-L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) \
-	src/helloWorld.cpp
+	src/helloWorld.cpp src/minimalistic_wrapper/JNIHelper.cpp src/minimalistic_wrapper/MinimalisticGlue.cpp 
 
-shared:
+minimalistic:
 #	@$(CXX) $(CFLAGS) -c src/FooType.cpp -o footype.o 
-	@$(CXX) -fPIC -o libtest.so $(CFLAGS) $(DEFS) \
+	@$(CXX) -o libtest.so $(CFLAGS) $(DEFS) \
 	$(INCS_JNI) $(INCS) \
 	-L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) \
-	-shared src/JNIHelper.cpp src/MinimalisticGlue.cpp 
+	-shared src/minimalistic_wrapper/JNIHelper.cpp src/minimalistic_wrapper/MinimalisticGlue.cpp
 
-all: shared
+skia:
+	cp $(SKIA_SRC)/out/$(RELEASE)/obj.target/core/src/core/*.o tmp/
+	cp $(SKIA_SRC)/out/$(RELEASE)/obj.target/images/src/images/*.o tmp/
+	cp $(SKIA_SRC)/out/$(RELEASE)/obj.target/ports/src/ports/*.o tmp/
+	cp $(SKIA_SRC)/out/$(RELEASE)/obj.target/utils/src/utils/*.o tmp/
+	cp $(SKIA_SRC)/out/$(RELEASE)/obj.target/skhello/src/effects/SkEffects_none.o tmp/
+	cp $(SKIA_SRC)/out/$(RELEASE)/obj.target/skhello/src/images/SkImageDecoder_libpng.o tmp/
+	(cd tmp/ && ar qs libskia.a && mv libskia.a ..)
+
+test2:
+	@$(CXX) $(CFLAGS) $(DEFS) -o test  \
+	$(INCS_JNI) $(INCS) \
+	-L.  -Wl,--start-group libskia.a -Wl,--end-group  -lfreetype  -lpthread -lpng -lGL -lGLU -lskia \
+	src/helloWorld.cpp src/minimalistic_wrapper/JNIHelper.cpp src/minimalistic_wrapper/MinimalisticGlue.cpp 
+	
+all: 
 
 clean:
 	@echo "Cleaning up"

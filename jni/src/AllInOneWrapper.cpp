@@ -87,7 +87,7 @@ JNI_OnLoad(JavaVM *jvm, void *reserved)
   printf("[Native] Loading JNI library. Wish us luck...\r\n");
   JNIEnv *env;
 
-  if (jvm->GetEnv((void **) &env, JNI_VERSION_1_2))
+  if (jvm->GetEnv((void **) &env, JNI_VERSION_1_6))
     {
       return JNI_ERR; /* JNI version not supported */
     }
@@ -95,5 +95,5 @@ JNI_OnLoad(JavaVM *jvm, void *reserved)
   registerMethodsForClass(env, "org/mapsforge/playground/JNITestMain", JNITestMain_methods, SIZEOF(JNITestMain_methods));
   registerMethodsForClass(env, "org/mapsforge/playground/FooType", FooType_methods, SIZEOF(FooType_methods));
 
-  return JNI_VERSION_1_2;
+  return JNI_VERSION_1_6;
 }

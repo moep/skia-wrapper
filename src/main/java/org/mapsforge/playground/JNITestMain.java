@@ -25,7 +25,7 @@ public class JNITestMain {
 		System.load(customLibraryPath + "libtest.so");
 		
 		// Perform tests
-		Bitmap bmp = new Bitmap();
+		Bitmap bmp = new Bitmap(1000, 20);
 		bmp.saveAsPNG("moep.png");
 		bmp.delete();
 	}

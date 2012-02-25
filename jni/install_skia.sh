@@ -11,7 +11,7 @@ if [ ! -d ./skia_src/ ];
 then
   echo "Downloading Skia sources..."
   mkdir skia_src
-  (cd skia_src &&  svn checkout http://skia.googlecode.com/svn/trunk -r3223  .)
+  (cd skia_src &&  svn checkout http://skia.googlecode.com/svn/trunk .)
   echo "Finished downloading Skia sources."
 fi
 
