@@ -15,10 +15,5 @@ then
   echo "Finished downloading Skia sources."
 fi
 
-# Compile Skia sources
-echo "Compiling Skia..."
-(cd skia_src && ./gyp_skia && make -j)
-echo "Finished compiling."
-
 echo "----------------"
-echo "You can now run GNU make to compile the JNI wrapper."
+echo "Type 'make -j' to compile the wrapper."
