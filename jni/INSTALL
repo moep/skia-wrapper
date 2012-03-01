@@ -1,4 +1,0 @@
-1) ./install_skia.sh
-2) make -j
-
-The executables and libraries can be found in 'out/out/Default/' and its sub-directories. 

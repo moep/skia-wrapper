@@ -1,7 +1,7 @@
 package org.mapsforge.skia;
 
 public class Bitmap {
-	int nativeObj;
+	public int nativeObj;
 	
 	public Bitmap(int width, int height) {
 		this.nativeObj = createBitmap(width, height);

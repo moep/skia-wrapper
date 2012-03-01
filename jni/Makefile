@@ -1,101 +1,73 @@
-# Makefile that wraps the Gyp and build steps for Unix and Mac (but not Windows)
-# Uses "make" to build on Unix, and "xcodebuild" to build on Mac.
-#
-# Some usage examples (tested on both Linux and Mac):
-#
-#   # Clean everything
-#   make clean
-#
-#   # Build and run tests (in Debug mode)
-#   make tests
-#   out/Debug/tests
-#
-#   # Build and run tests (in Release mode)
-#   make tests BUILDTYPE=Release
-#   out/Release/tests
-#
-#   # Build bench and SampleApp (both in Release mode), and then run them
-#   make SampleApp bench BUILDTYPE=Release
-#   out/Release/bench -repeat 2
-#   out/Release/SampleApp
-#
-#   # Build all targets (in Debug mode)
-#   make
-#
-# If you want more fine-grained control, you can run gyp and then build the
-# gyp-generated projects yourself.
-#
-# See http://code.google.com/p/skia/wiki/DocRoot for complete documentation.
+RELEASE=Debug
+SRC = src
+SKIA_SRC = skia_src
+TARGET = test
+JAVA_HOME ?= /usr/lib/jvm/java-6-sun-1.6.0.26/include
 
-SKIA_ROOT ?= skia_src
-CWD := $(shell pwd)
-ALL_TARGETS := helloWorld 
+CXX = g++
 
-# Default target.  This must be listed before all other targets.
-.PHONY: default
-default: all
+DEFS = '-DSK_SCALAR_IS_FLOAT' \
+       '-DSK_CAN_USE_FLOAT' \
+       '-DSK_SAMPLES_FOR_X' \
+       '-DSK_BUILD_FOR_UNIX' \
+       '-DSK_USE_POSIX_THREADS' 
 
-# As noted in http://code.google.com/p/skia/issues/detail?id=330 , building
-# multiple targets in parallel was failing.  The special .NOTPARALLEL target
-# tells gnu make not to run targets within _this_ Makefile in parallel, but the
-# recursively invoked Makefile within out/ _is_ allowed to run in parallel
-# (so you can still get some speedup that way).
-.NOTPARALLEL:
+CFLAGS = -fPIC \
+		 -Wall \
+         -Wextra \
+         -Wno-unused \
+         -Wno-unused-parameter \
+         -Wno-c++11-extensions \
+         
 
-uname := $(shell uname)
-ifneq (,$(findstring CYGWIN, $(uname)))
-  $(error Cannot build using Make on Windows. See http://code.google.com/p/skia/wiki/GettingStartedOnWindows)
-endif
+INCS = -I/usr/include/freetype2 \
+       -I$(SKIA_SRC)/gyp/config \
+       -I$(SKIA_SRC)/include/config \
+       -I$(SKIA_SRC)/include/core \
+       -I$(SKIA_SRC)/gyp/ext \
+       -I$(SKIA_SRC)/include/images \
+       -I$(SKIA_SRC)/include/ports \
+       -I$(SKIA_SRC)/include/utils
 
-.PHONY: all
-all: $(ALL_TARGETS)
+INCS_JNI = -I/usr/lib/jvm/java-6-sun/include \
+           -I/usr/lib/jvm/java-6-sun/include/linux
 
-.PHONY: clean
+OBJS = $(SKIA_SRC)/out/$(RELEASE)/obj.target/skhello/src/effects/SkEffects_none.o \
+       $(SKIA_SRC)/out/$(RELEASE)/obj.target/skhello/src/images/SkImageDecoder_libpng.o
+
+LIBS = -lfreetype \
+       -lpthread \
+       -lpng \
+       -lGL \
+       -lGLU \
+       -lcore \
+       -limages \
+       -lports \
+       -lutils \
+       -lopts \
+       -lopts_ssse3
+
+LD_INPUTS = $(OBJS) \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libcore.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libimages.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libports.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libutils.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libopts.a \
+            $(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp/libopts_ssse3.a
+
+# This target creates a hello world shared library 
+minimalistic:
+	@$(CXX) -o libtest.so $(CFLAGS) $(DEFS) \
+	$(INCS_JNI) $(INCS) \
+	-L$(SKIA_SRC)/out/$(RELEASE)/obj.target/gyp  -Wl,--start-group $(LD_INPUTS) -Wl,--end-group  $(LIBS) \
+	-shared src/minimalistic_wrapper/JNIHelper.cpp src/minimalistic_wrapper/MinimalisticGlue.cpp
+wrapper:
+	$(CXX) -o BitmapGlue.o $(CFLAGS) $(DEFS) $(INCS) $(INCS_JNI) -c src/wrapper/BitmapGlue.cpp 
+
+
 clean:
 	@echo "Cleaning up"
-	@rm -rf out xcodebuild
+	@rm $(TARGET) libtest.so *.png
 
-# Run gyp no matter what.
-.PHONY: gyp
-gyp:
-	@gyp --depth=. --generator-output=out wrapper.gyp 
-
-# Run gyp if necessary.
-#
-# On Linux, only run gyp if we haven't already generated the platform-specific
-# Makefiles.  If the underlying gyp configuration has changed since these
-# Makefiles were generated, they will rerun gyp on their own.
-#
-# This does not work for Mac, though... so for now, we ALWAYS rerun gyp on Mac.
-# TODO(epoger): Figure out a better solution for Mac... maybe compare the
-# gypfile timestamps to the xcodebuild project timestamps?
-.PHONY: gyp_if_needed
-gyp_if_needed:
-ifneq (,$(findstring Linux, $(uname)))
-	$(MAKE) out/Makefile
-endif
-ifneq (,$(findstring Darwin, $(uname)))
-	gyp --depth=. --generator-output=out wrapper.gyp
-endif
-
-out/Makefile:
-	@echo "Running gyp"
-	@gyp --depth=. --generator-output=out wrapper.gyp
-
-# For all specific targets: run gyp if necessary, and then pass control to
-# the gyp-generated buildfiles.
-#
-# For the Mac, we create a convenience symlink to the generated binary.
-.PHONY: $(ALL_TARGETS)
-$(ALL_TARGETS):: gyp_if_needed
-ifneq (,$(findstring Linux, $(uname)))
-#	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
-	$(MAKE) -C $(SKIA_ROOT)
-	$(MAKE) -C out $@
-endif
-ifneq (,$(findstring Darwin, $(uname)))
-	@rm -f out/$(BUILDTYPE) || if test -d out/$(BUILDTYPE); then echo "run 'make clean' or otherwise delete out/$(BUILDTYPE)"; exit 1; fi
-	@xcodebuild -project out/gyp/$@.xcodeproj -configuration $(BUILDTYPE)
-	@ln -s $(CWD)/xcodebuild/$(BUILDTYPE) out/$(BUILDTYPE)
-endif
-
+removeSources:
+	@rm -rf $(SKIA_SRC)

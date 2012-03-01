@@ -1,6 +1,7 @@
 package org.mapsforge.playground;
 
-import org.mapsforge.skia.Bitmap;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 
 public class JNITestMain {
 
@@ -25,9 +26,7 @@ public class JNITestMain {
 		System.load(customLibraryPath + "libtest.so");
 		
 		// Perform tests
-		Bitmap bmp = new Bitmap(1000, 20);
-		bmp.saveAsPNG("moep.png");
-		bmp.delete();
+		Bitmap bmp = Bitmap.createBitmap(100, 200, Config.ARGB_8888);
 	}
 
 }

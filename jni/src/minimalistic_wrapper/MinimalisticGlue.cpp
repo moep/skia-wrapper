@@ -35,7 +35,8 @@ void Bitmap_delete(JNIEnv* env, jobject obj)
 {
 	printf("[Native] Bitmap_delete() \r\n");
 	SkBitmap* bmp = (SkBitmap*) JNIHelper::getNativeObject(env, obj);
-	delete bmp;
+	bmp->width();
+	//delete (void*)bmp;
 }
 
 void Bitmap_saveAsPNG(JNIEnv* env, jobject obj, jstring path)
